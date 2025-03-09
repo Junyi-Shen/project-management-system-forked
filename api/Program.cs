@@ -37,6 +37,28 @@ app.MapGet("/", () =>
 //     final: 0.0 + tax 
 // }
 
+app.MapGet("/{price}/{tax}/", (string price, string tax) =>
+{
+    if (!decimal.TryParse(price, out decimal parsedPrice) || !decimal.TryParse(tax, out decimal parsedTax))
+    {
+        return Results.BadRequest(new { error = "Invalid price or tax format. Please try again." });
+    }
+
+    decimal taxAmount = parsedPrice * parsedTax;
+    decimal finalPrice = parsedPrice + taxAmount;
+
+    var response = new
+    {
+        price = parsedPrice.ToString("0.00"),
+        tax = (parsedTax * 100).ToString("0") + "%",
+        final = finalPrice.ToString("0.00")
+    };
+
+    return Results.Json(response);
+})
+.WithName("CalculatePrice");
+
+
 app.MapGet("/weatherforecast", () =>
 {
     var forecast =  Enumerable.Range(1, 5).Select(index =>
